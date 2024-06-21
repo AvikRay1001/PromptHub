@@ -12,7 +12,7 @@ export const POST = async (req) => {
             tag
         })
 
-        await newPrompt.save();
+        await new Prompt.save();
 
         return new Response(JSON.stringify(newPrompt), {status: 201});
 
