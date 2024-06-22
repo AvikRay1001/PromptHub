@@ -19,11 +19,38 @@ const PromptCardList = ({data, handleTagClick}) => {
 
 const Feed = () => {
   const [searchText, setsearchText] = useState('');
-  const [posts, setposts] = useState([])
+  const [searchTimeout, setsearchTimeout] = useState(null);
+  const [searchedResults, setsearchedResults] = useState([]);
+  const [posts, setposts] = useState([]);
+
+  const filterPrompts = () => {
+    const regex = new RegExp(searchText,"i");
+    return posts.filter((item) => 
+      regex.test(item.creator.username) ||
+      regex.test(item.prompt) ||
+      regex.test(item.tag)
+    );
+  };
 
   const handleSearchChange = (e) => {
-    
-  }
+    clearTimeout(searchTimeout);
+    setsearchText(e.target.value);
+
+    //debounce method
+    setsearchTimeout(
+      setTimeout(() => {
+        const searchResults = filterPrompts(e.target.value);
+        setsearchedResults(searchResults);
+      },500)
+    );
+  };
+
+  const handleTagClick = (tagName) => {
+    setsearchText(tagName);
+
+    const searchResult = filterPrompts(tagName);
+    setsearchedResults(searchResult);
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -38,7 +65,7 @@ const Feed = () => {
 
   return(
     <section className="feed">
-      <form className="realtive w-full flex-center">
+      <form className="relative w-full flex-center">
         <input
           type="text"
           placeholder="Search for a tag or a username"
@@ -49,10 +76,19 @@ const Feed = () => {
         />
       </form>
 
+
+    { searchText ? (
       <PromptCardList
-        data={posts}
-        handleTagClick={() => {}}
-      />
+        data={searchedResults}
+        handleTagClick={handleTagClick}
+      /> ) : (
+        <PromptCardList
+          data={posts}
+          handleTagClick={handleTagClick}
+        />
+      )
+    }
+
     </section>
   )
 }

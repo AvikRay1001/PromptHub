@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { setConfig } from "next/config";
 
 
 const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete}) => {
@@ -19,11 +18,18 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete}) => {
       setTimeout(() => setcopied(""),3000);
     }
   
+    const handleUserProfile = () => {
+      console.log(post);
+
+      if(post.creator._id === session?.user.id) return router.push('/profile');
+
+      router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
+    }
 
   return (
     <div className="prompt_card">
       <div className="flex justify-between items-start gap-5">
-        <div className="flex-1 flex justify-start items-center gap-3 cursor-pointer">
+        <div className="flex-1 flex justify-start items-center gap-3 cursor-pointer" onClick={handleUserProfile}>
           <Image
             src={post.creator.image}
             alt="user_iamge"
@@ -47,7 +53,7 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete}) => {
       </div>
 
       <p className="my-4 font-satoshi text-sm text-gray-500">{post.prompt}</p>
-      <p className="font-inter text-sm blue_gradient coursor-pointer" onClick={() => handleTagClick && handleTagClick}>#{post.tag}</p>
+      <p className="font-inter text-sm blue_gradient cursor-pointer" onClick={() => handleTagClick && handleTagClick(post.tag)}>#{post.tag}</p>
 
       {session?.user.id === post.creator._id && pathName === '/profile' && (
         <div className="mt-5 flex-center gap-4 border-t border-gray-100 pt-3">
